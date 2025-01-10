@@ -3,7 +3,7 @@
     "path": "~/Documents/mig-data/tea-audits/01-Cleaning.qmd",
     "project_path": "01-Cleaning.qmd",
     "type": "quarto_markdown",
-    "hash": "0",
+    "hash": "3258781666",
     "contents": "",
     "dirty": false,
     "created": 1736529616236.0,
@@ -12,15 +12,16 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "5,0",
-        "scrollLine": "0"
+        "cursorPosition": "53,58",
+        "scrollLine": "39",
+        "last_setup_crc32": "7803fe5ac1c074e7"
     },
     "folds": "",
-    "lastKnownWriteTime": 1736529616,
+    "lastKnownWriteTime": 1736532177,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1736529616,
+    "last_content_update": 1736532177966,
     "read_only": false,
     "read_only_alternatives": []
 }

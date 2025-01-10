@@ -3,3 +3,54 @@ title: "01-Cleaning"
 format: html
 ---
 
+## Setup
+
+```{r}
+#| label: setup
+
+library(tidyverse)
+library(lubridate)
+library(janitor)
+library(readxl)
+```
+
+## Import excel sheet
+
+```{r}
+#| label: import
+all_audit <- read_xlsx("data-raw/audits-1999-2024.xlsx")
+
+all_audit_c <- all_audit |> clean_names()
+
+all_audit_c
+```
+ 
+## Cleaning Columns
+I want to change the final_report_mailed column to be a date type. I will also check for any NA's that could cause problems and fix those if they exist. 
+
+```{r}
+#| label: date
+
+all_audit_date <- all_audit_c |> mutate(
+  final_report_mailed = ymd(final_report_mailed)
+)
+
+all_audit_date
+```
+
+```{r}
+#| label: NAs
+
+all_audit_date |> summary()
+```
+ 
+In this case, I want to keep the NA's because they indicate incomplete audits. 
+ 
+## Export
+ 
+```{r}
+#| label: export
+
+all_audit_date |> write_rds("data-processed/all-audits.rds")
+```
+
