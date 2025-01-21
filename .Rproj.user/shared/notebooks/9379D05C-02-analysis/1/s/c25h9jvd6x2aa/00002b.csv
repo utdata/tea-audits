@@ -1,3 +1,0 @@
-"0","isds |> group_by(district, yr = year(final_report_mailed)) |> "
-"0","  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE)) |> arrange(yr |> desc(), total_adjustments)"
-"2","`summarise()` has grouped output by 'district'. You can override using the `.groups` argument."

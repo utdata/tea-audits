@@ -7,8 +7,11 @@ format: html
 
 ```{r}
 #| label: setup
+#| message: false
+#| warning: false
 
 library(tidyverse)
+library(janitor)
 ```
 
 ## Read in our clean data
@@ -26,14 +29,15 @@ First, I want to group by each district to see which districts have had the high
 
 ```{r}
 audits |> group_by(district) |> 
-  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE)) |> 
+  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE), 
+            count_rows = n()) |> 
   arrange(total_adjustments)
 ```
 
 There seem to be a lot of special types of districts showing up. Let's only look at ISD's. 
 
 ```{r}
-isds <- audits[grepl("ISD", audits$district), ]
+isds <- audits |> filter(str_detect(district, "ISD"))
 
 isds
 ```
@@ -42,7 +46,8 @@ Now I will do the same but only looking at independent school districts.
 
 ```{r}
 isds |> group_by(district) |> 
-  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE)) |> 
+  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE),
+            count_rows = n()) |> 
   arrange(total_adjustments)
 ```
 
@@ -50,6 +55,97 @@ Now let's look at which ISD has had the highest financial adjustments each year.
 
 ```{r}
 isds |> group_by(district, yr = year(final_report_mailed)) |> 
-  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE)) |> arrange(yr |> desc(), total_adjustments)
+  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE),
+            count_rows = n()) |> 
+  arrange(yr |> desc(), 
+          count_rows |> desc(), 
+          total_adjustments)
+```
+
+## Separate School Districts
+
+- CSD is Common School District
+- MSD is Municipal School District
+Seems like MSD, CISD and ISD are grouped together in TEA documentation. So I will group these together for the next few chunks. 
+
+### Grouped MSD, CISD, ISD
+
+```{r}
+isd_cisd_msd <- audits |> filter(str_detect(district, "ISD|MSD|Consolidated ISD"))
+
+charter <- audits |> filter(str_detect(district, "Charter"))
+
+other_districts <- audits |> filter(!str_detect(district,"ISD|MSD|Consolidated ISD|Charter"))
+
+isd_cisd_msd
+charter
+other_districts
+
+```
+
+Now that we have our grouped districts, let's do the same analysis as above for each of them. First ISD, CISD and MSD.
+
+```{r}
+
+isd_cisd_msd |> group_by(district) |> 
+  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE),
+            count_rows = n()) |> 
+  arrange(total_adjustments, 
+          count_rows |> desc())
+```
+
+Now for the charter schools.
+
+```{r}
+charter |> group_by(district) |> 
+  summarize( total_adjustments = sum(final_financial_adj, na.rm = TRUE),
+             count_rows = n()) |> 
+  arrange(total_adjustments,
+          count_rows |> desc())
+```
+
+Now for the "other" category"
+
+```{r}
+other_districts |> group_by(district) |> 
+  summarize( total_adjustments = sum(final_financial_adj, na.rm = TRUE),
+             count_rows = n()) |> 
+  arrange(total_adjustments,
+          count_rows |> desc())
+```
+
+## Positive/Negative Changes over time
+
+Now I want to see how a district has been audited over time - has it all been positive or negative adjustments and how has it changed. For an example we are going to do totals for all districts from the start of the data to now. And then we will use Dallas ISD.
+
+```{r}
+graphing_data <- isd_cisd_msd |> filter(final_report_mailed > "1999-01-01") |> 
+  group_by(final_report_mailed) |> 
+  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE)
+  )
+
+graphing_data
+```
+
+```{r}
+ggplot(graphing_data, aes(x= final_report_mailed, y = total_adjustments)) +
+  geom_point(size = 0.5) +
+  scale_y_continuous(limits = c(-7000000, 1000000))
+```
+
+```{r}
+dallas <- isd_cisd_msd |> filter(district == "Dallas ISD" & final_report_mailed >"1999-01-01") |> 
+  group_by(final_report_mailed) |> 
+  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE))
+
+dallas
+```
+
+```{r}
+ggplot(dallas, aes(x = final_report_mailed, y = total_adjustments)) + 
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  scale_x_date(date_labels = "%Y", date_breaks = "1 year") +
+  theme(axis.text.x = element_text(vjust = , angle = 45))
 ```
 

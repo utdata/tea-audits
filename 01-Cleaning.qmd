@@ -7,9 +7,10 @@ format: html
 
 ```{r}
 #| label: setup
+#| message: false
+#| warning: false
 
 library(tidyverse)
-library(lubridate)
 library(janitor)
 library(readxl)
 ```
@@ -18,11 +19,12 @@ library(readxl)
 
 ```{r}
 #| label: import
-all_audit <- read_xlsx("data-raw/audits-1999-2024.xlsx")
 
-all_audit_c <- all_audit |> clean_names()
+all_audit_raw <- read_xlsx("data-raw/audits-1999-2024.xlsx")
 
-all_audit_c
+all_audit <- all_audit_raw |> clean_names()
+
+all_audit
 ```
  
 ## Cleaning Columns
@@ -31,7 +33,7 @@ I want to change the final_report_mailed column to be a date type. I will also c
 ```{r}
 #| label: date
 
-all_audit_date <- all_audit_c |> mutate(
+all_audit_date <- all_audit |> mutate(
   final_report_mailed = ymd(final_report_mailed)
 )
 
