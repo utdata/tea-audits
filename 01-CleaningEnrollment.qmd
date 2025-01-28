@@ -1,0 +1,51 @@
+---
+title: "01-CleaningEnrollment"
+format: html
+---
+
+```{r}
+#| label: setup
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+#| label: import
+
+enrollment_file_list <- list.files(
+  "data-raw/enrollment",
+  pattern = ".csv",
+  full.names = TRUE
+)
+
+enrollment_file_list
+```
+
+```{r}
+#| label: combine
+
+reading_files <- function(x) {
+  df <- read_csv(x, skip = 4)
+  colnames(df) <-
+    c("YEAR",	
+      "REGION",	
+      "COUNTY NAME",	
+      "DISTRICT",	"DISTRICT NAME",	
+      "CHARTER STATUS",	
+      "GENDER",	
+      "ENROLLMENT")
+}
+
+enrollment_new <- enrollment_file_list |> map(reading_files) |> list_rbind() |> clean_names()
+
+enrollment_new
+```
+
+
+```{r}
+```
+
+

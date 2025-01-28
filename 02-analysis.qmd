@@ -47,7 +47,12 @@ Now I will do the same but only looking at independent school districts.
 ```{r}
 isds |> group_by(district) |> 
   summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE),
-            count_rows = n()) |> 
+            count_rows = n(),
+            avg_financial_adj = mean(final_financial_adj, na.rm = TRUE),
+            most_neg_financial_adj = min(final_financial_adj, na.rm = TRUE),
+            most_pos_financial_adj = max(final_financial_adj, na.rm = TRUE),
+            median_financial_adj = median(final_financial_adj, na.rm = TRUE),
+            largest_financial_adj = final_financial_adj[which.max(abs(final_financial_adj))]) |> # check with mcdonald
   arrange(total_adjustments)
 ```
 
@@ -146,6 +151,6 @@ ggplot(dallas, aes(x = final_report_mailed, y = total_adjustments)) +
   geom_point() +
   geom_hline(yintercept = 0) +
   scale_x_date(date_labels = "%Y", date_breaks = "1 year") +
-  theme(axis.text.x = element_text(vjust = , angle = 45))
+  theme(axis.text.x = element_text( angle = 45))
 ```
 
