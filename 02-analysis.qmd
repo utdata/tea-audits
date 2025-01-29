@@ -45,15 +45,18 @@ isds
 Now I will do the same but only looking at independent school districts.
 
 ```{r}
-isds |> group_by(district) |> 
+isd_stats <- isds |> group_by(district) |> 
   summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE),
             count_rows = n(),
-            avg_financial_adj = mean(final_financial_adj, na.rm = TRUE),
+            avg_financial_adj = mean(final_financial_adj, na.rm = TRUE) |> round_half_up(),
             most_neg_financial_adj = min(final_financial_adj, na.rm = TRUE),
             most_pos_financial_adj = max(final_financial_adj, na.rm = TRUE),
             median_financial_adj = median(final_financial_adj, na.rm = TRUE),
-            largest_financial_adj = final_financial_adj[which.max(abs(final_financial_adj))]) |> # check with mcdonald
+            largest_financial_adj = final_financial_adj[which.max(abs(final_financial_adj))]) |> 
   arrange(total_adjustments)
+
+isd_stats
+
 ```
 
 Now let's look at which ISD has had the highest financial adjustments each year.

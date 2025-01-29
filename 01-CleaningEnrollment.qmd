@@ -27,21 +27,32 @@ enrollment_file_list
 ```{r}
 #| label: combine
 
-reading_files <- function(x) {
-  df <- read_csv(x, skip = 4)
-  colnames(df) <-
-    c("YEAR",	
-      "REGION",	
-      "COUNTY NAME",	
-      "DISTRICT",	"DISTRICT NAME",	
-      "CHARTER STATUS",	
-      "GENDER",	
-      "ENROLLMENT")
-}
+column_names <- c("YEAR","REGION", "COUNTY NAME", "DISTRICT",	"DISTRICT NAME",	"CHARTER STATUS",	"GENDER",	"ENROLLMENT")
 
-enrollment_new <- enrollment_file_list |> map(reading_files) |> list_rbind() |> clean_names()
+enrollment_all <- enrollment_file_list |> 
+  map(read_csv,
+  skip = 5,
+  col_names = column_names,
+  col_types = cols( ENROLLMENT = col_character())
+) |> list_rbind() |> clean_names()
 
-enrollment_new
+enrollment_all
+
+
+
+  
+#   function(x) {
+#   df <- read_csv(x, skip = 5, names = c("YEAR",	
+#       "REGION",	
+#       "COUNTY NAME",	
+#       "DISTRICT",	"DISTRICT NAME",	
+#       "CHARTER STATUS",	
+#       "GENDER",	
+#       "ENROLLMENT"))
+# }
+# 
+# enrollment_new <- enrollment_file_list |> map(reading_files) |> list_rbind() |> clean_names()
+
 ```
 
 
