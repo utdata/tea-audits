@@ -34,7 +34,8 @@ I want to change the final_report_mailed column to be a date type. I will also c
 #| label: date
 
 all_audit_date <- all_audit |> mutate(
-  final_report_mailed = ymd(final_report_mailed)
+  final_report_mailed = ymd(final_report_mailed),
+  district = toupper(district)
 )
 
 all_audit_date

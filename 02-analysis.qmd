@@ -79,15 +79,12 @@ Seems like MSD, CISD and ISD are grouped together in TEA documentation. So I wil
 ### Grouped MSD, CISD, ISD
 
 ```{r}
-isd_cisd_msd <- audits |> filter(str_detect(district, "ISD|MSD|Consolidated ISD"))
+isd_cisd_msd <- audits |> filter(str_detect(district, "ISD|MSD|CONSOLIDATES ISD"))
 
-charter <- audits |> filter(str_detect(district, "Charter"))
-
-other_districts <- audits |> filter(!str_detect(district,"ISD|MSD|Consolidated ISD|Charter"))
+charter_other <- audits |> filter(!str_detect(district,"ISD|MSD|CONSOLIDATED ISD"))
 
 isd_cisd_msd
-charter
-other_districts
+charter_other
 
 ```
 
@@ -95,31 +92,31 @@ Now that we have our grouped districts, let's do the same analysis as above for 
 
 ```{r}
 
-isd_cisd_msd |> group_by(district) |> 
+isd_cisd_msd_stats <- isd_cisd_msd |> group_by(district) |> 
   summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE),
-            count_rows = n()) |> 
-  arrange(total_adjustments, 
-          count_rows |> desc())
+            count_rows = n(),
+            avg_financial_adj = mean(final_financial_adj, na.rm = TRUE) |> round_half_up(),
+            most_neg_financial_adj = min(final_financial_adj, na.rm = TRUE),
+            most_pos_financial_adj = max(final_financial_adj, na.rm = TRUE),
+            median_financial_adj = median(final_financial_adj, na.rm = TRUE),
+            largest_financial_adj = final_financial_adj[which.max(abs(final_financial_adj))]) |> 
+  arrange(total_adjustments)
+
+isd_cisd_msd_stats
 ```
 
-Now for the charter schools.
+Now for the charter and other schools.
 
 ```{r}
-charter |> group_by(district) |> 
-  summarize( total_adjustments = sum(final_financial_adj, na.rm = TRUE),
-             count_rows = n()) |> 
-  arrange(total_adjustments,
-          count_rows |> desc())
-```
-
-Now for the "other" category"
-
-```{r}
-other_districts |> group_by(district) |> 
-  summarize( total_adjustments = sum(final_financial_adj, na.rm = TRUE),
-             count_rows = n()) |> 
-  arrange(total_adjustments,
-          count_rows |> desc())
+charter_other |> group_by(district) |> 
+  summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE),
+            count_rows = n(),
+            avg_financial_adj = mean(final_financial_adj, na.rm = TRUE) |> round_half_up(),
+            most_neg_financial_adj = min(final_financial_adj, na.rm = TRUE),
+            most_pos_financial_adj = max(final_financial_adj, na.rm = TRUE),
+            median_financial_adj = median(final_financial_adj, na.rm = TRUE),
+            largest_financial_adj = final_financial_adj[which.max(abs(final_financial_adj))]) |> 
+  arrange(total_adjustments)
 ```
 
 ## Positive/Negative Changes over time
@@ -142,7 +139,7 @@ ggplot(graphing_data, aes(x= final_report_mailed, y = total_adjustments)) +
 ```
 
 ```{r}
-dallas <- isd_cisd_msd |> filter(district == "Dallas ISD" & final_report_mailed >"1999-01-01") |> 
+dallas <- isd_cisd_msd |> filter(district == "DALLAS ISD" & final_report_mailed >"1999-01-01") |> 
   group_by(final_report_mailed) |> 
   summarize(total_adjustments = sum(final_financial_adj, na.rm = TRUE))
 
@@ -155,5 +152,13 @@ ggplot(dallas, aes(x = final_report_mailed, y = total_adjustments)) +
   geom_hline(yintercept = 0) +
   scale_x_date(date_labels = "%Y", date_breaks = "1 year") +
   theme(axis.text.x = element_text( angle = 45))
+```
+
+```{r}
+isds |> filter(district == "PROGRESO ISD")
+```
+
+```{r}
+isds |> filter(district == "SOUTH TEXAS ISD")
 ```
 

@@ -27,8 +27,10 @@ enrollment_file_list
 ```{r}
 #| label: combine
 
-column_names <- c("YEAR","REGION", "COUNTY NAME", "DISTRICT",	"DISTRICT NAME",	"CHARTER STATUS",	"GENDER",	"ENROLLMENT")
+# some of the column names are different, here I am creating an array of the column names I want
+column_names <- c("YEAR","REGION", "COUNTY NAME", "DISTRICT NAME",	"DISTRICT NUMBER",	"CHARTER STATUS",	"GENDER",	"ENROLLMENT")
 
+# this takes the files, uses map to put them in read_csv() with the three arguments below it. skip = 5 will skip the first five lines of each file (including the column names), col_names = column_names sets the column names to the list I provided, and col_types changes the enrollment column to a character because on some files its a double. 
 enrollment_all <- enrollment_file_list |> 
   map(read_csv,
   skip = 5,
@@ -38,25 +40,29 @@ enrollment_all <- enrollment_file_list |>
 
 enrollment_all
 
-
-
-  
-#   function(x) {
-#   df <- read_csv(x, skip = 5, names = c("YEAR",	
-#       "REGION",	
-#       "COUNTY NAME",	
-#       "DISTRICT",	"DISTRICT NAME",	
-#       "CHARTER STATUS",	
-#       "GENDER",	
-#       "ENROLLMENT"))
-# }
-# 
-# enrollment_new <- enrollment_file_list |> map(reading_files) |> list_rbind() |> clean_names()
-
 ```
+
 
 
 ```{r}
+enrollment_clean <- enrollment_all |> mutate(enrollment = as.numeric(enrollment))
+
+enrollment_clean
 ```
+
+```{r}
+```
+
+
+
+```{r}
+# district_name and district_number are somehow switching columns...
+result <- enrollment_clean |> group_by(district_name, year) |> 
+  reframe(total_enrollment = sum(enrollment, na.rm = T)) 
+
+result
+```
+
+
 
 
